@@ -44,7 +44,13 @@ export async function generateStaticParams() {
     }))
 }
 
-async function page({ params: { slug = 'index' } }) {
+type PageProps = {
+  params: {
+    slug?: string
+  }
+}
+
+async function page({ params: { slug = 'index' } }: PageProps) {
   const page = await queryPageBySlug({ slug })
 
   if (!page) {
