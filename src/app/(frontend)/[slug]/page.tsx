@@ -9,7 +9,7 @@ import ServicesOverviewBlock from '@/blocks/servicesOverview/ServicesOverviewBlo
 import { Page as PayloadPage } from '@/payload-types'
 import { renderPageContent } from '@/components/PageContent'
 
-export const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
+export const queryPageBySlug = async ({ slug }: { slug: string }) => {
   const parsedSlug = decodeURIComponent(slug)
 
   const payloadConfig = await config
@@ -26,7 +26,7 @@ export const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   })
 
   return result.docs?.[0] || null
-})
+}
 
 export async function generateStaticParams() {
   const payloadConfig = await config
