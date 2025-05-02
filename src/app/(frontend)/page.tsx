@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
 import { queryPageBySlug } from './[slug]/page'
 import { renderPageContent } from '@/components/PageContent'
