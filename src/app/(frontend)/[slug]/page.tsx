@@ -3,12 +3,13 @@ import React, { cache } from 'react'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
-import { Page } from '@/payload-types'
 import HeroBlock from '@/blocks/Hero/HeroBlock'
 import ContactUsFormBlock from '@/blocks/contactUsForm/ContactUsFormBlock'
 import ServicesOverviewBlock from '@/blocks/servicesOverview/ServicesOverviewBlock'
+import { Page as PayloadPage } from '@/payload-types'
+import { renderPageContent } from '@/components/PageContent'
 
-const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
+export const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   const parsedSlug = decodeURIComponent(slug)
 
   const payloadConfig = await config
@@ -44,13 +45,9 @@ export async function generateStaticParams() {
     }))
 }
 
-async function page({
-  params: { slug = 'index' },
-}: {
-  params: {
-    slug?: string
-  }
-}) {
+// @ts-ignore
+async function Page({ params }: { params: { slug?: string } }) {
+  const slug = params.slug ?? 'index'
   const page = await queryPageBySlug({ slug })
 
   if (!page) {
@@ -59,21 +56,22 @@ async function page({
 
   console.log('page', page)
 
-  const renderBlocks = (block: Page['layout'][0]) => {
-    switch (block.blockType) {
-      case 'hero':
-        return <HeroBlock block={block} key={block.id} />
-      case 'contact-us-form':
-        return <ContactUsFormBlock block={block} key={block.id} />
-      case 'services-overview':
-        return <ServicesOverviewBlock block={block} key={block.id} />
+  // const renderBlocks = (block: PayloadPage['layout'][0]) => {
+  //   switch (block.blockType) {
+  //     case 'hero':
+  //       return <HeroBlock block={block} key={block.id} />
+  //     case 'contact-us-form':
+  //       return <ContactUsFormBlock block={block} key={block.id} />
+  //     case 'services-overview':
+  //       return <ServicesOverviewBlock block={block} key={block.id} />
 
-      default:
-        return null
-    }
-  }
+  //     default:
+  //       return null
+  //   }
+  // }
 
-  return <div>{page.layout?.map((block) => renderBlocks(block))}</div>
+  // return <div>{page.layout?.map((block) => renderBlocks(block))}</div>
+  return renderPageContent(page)
 }
 
-export default page
+export default Page
