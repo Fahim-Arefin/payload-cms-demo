@@ -1,3 +1,5 @@
+// ✅ Add this at the top of the file (outside the function)
+export const dynamic = 'force-dynamic'
 import React, { cache } from 'react'
 
 import config from '@/payload.config'
@@ -28,22 +30,22 @@ export const queryPageBySlug = async ({ slug }: { slug: string }) => {
   return result.docs?.[0] || null
 }
 
-export async function generateStaticParams() {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
+// export async function generateStaticParams() {
+//   const payloadConfig = await config
+//   const payload = await getPayload({ config: payloadConfig })
 
-  const pages = await payload.find({
-    collection: 'pages',
-    draft: false,
-    limit: 1000,
-  })
+//   const pages = await payload.find({
+//     collection: 'pages',
+//     draft: false,
+//     limit: 1000,
+//   })
 
-  return pages.docs
-    ?.filter((doc) => doc.slug !== 'index')
-    .map((doc) => ({
-      params: { slug: doc.slug },
-    }))
-}
+//   return pages.docs
+//     ?.filter((doc) => doc.slug !== 'index')
+//     .map((doc) => ({
+//       params: { slug: doc.slug },
+//     }))
+// }
 
 // @ts-ignore
 async function Page({ params }: { params: { slug?: string } }) {
