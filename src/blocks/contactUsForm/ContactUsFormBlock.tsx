@@ -15,7 +15,7 @@
 
 import { Page } from '@/payload-types'
 import { RichText } from '@payloadcms/richtext-lexical/react'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 type Props = {
   block: Extract<Page['layout'][0], { blockType: 'contact-us-form' }>
@@ -33,6 +33,8 @@ function ContactUsFormBlock({ block }: Props) {
     error: null,
     success: false,
   })
+
+  const formRef = useRef<HTMLFormElement>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -62,11 +64,21 @@ function ContactUsFormBlock({ block }: Props) {
       if (!res.ok) throw new Error('Failed to submit form')
 
       setFormState({ loading: false, error: null, success: true })
+      formRef.current?.reset() // reset form fields
     } catch (err) {
       console.error(err)
       setFormState({ loading: false, error: 'Failed to submit', success: false })
     }
   }
+
+  useEffect(() => {
+    if (formState.success) {
+      const timeout = setTimeout(() => {
+        setFormState({ loading: false, error: null, success: false })
+      }, 5000)
+      return () => clearTimeout(timeout)
+    }
+  }, [formState.success])
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-12">
@@ -74,7 +86,7 @@ function ContactUsFormBlock({ block }: Props) {
         <div>
           <h2 className="text-3xl font-bold text-center mb-8">{block.heading}</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" ref={formRef}>
             {block.form.fields?.map((field: any) => {
               const commonProps = {
                 name: field.name,
@@ -167,19 +179,19 @@ function ContactUsFormBlock({ block }: Props) {
 
             {formState.error && <div className="text-red-600">{formState.error}</div>}
             {/* {formState.success && <div className="text-green-600">Submitted successfully 🎉</div>} */}
-            {formState.success && block.form?.confirmationMessage && (
+            {formState.success && block.form?.confirmationMessage ? (
               <div className="bg-green-50 border border-green-200 p-4 rounded text-green-800 mt-6">
                 <RichText data={block.form.confirmationMessage} />
               </div>
+            ) : (
+              <button
+                type="submit"
+                disabled={formState.loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md text-lg font-medium transition"
+              >
+                {formState.loading ? 'Submitting...' : block.form.submitButtonLabel || 'Submit'}
+              </button>
             )}
-
-            <button
-              type="submit"
-              disabled={formState.loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md text-lg font-medium transition"
-            >
-              {formState.loading ? 'Submitting...' : block.form.submitButtonLabel || 'Submit'}
-            </button>
           </form>
         </div>
       )}
